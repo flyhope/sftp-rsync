@@ -1,10 +1,15 @@
 {
-  "name": "sftp-rsync",
-  "displayName": "sftp-rsync",
+  "name": "sftp-rsync-fast",
+  "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "publisher": "flyhope",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flyhope/sftp-rsync.git"
+  },
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
@@ -28,7 +33,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.97.0",
+    "@types/vscode": "^1.96.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
@@ -37,5 +42,7 @@
     "typescript": "^5.7.3",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1"
-  }
+  },
+  "browser": "out/extension.js",
+  "extensionKind": ["workspace", "ui"]
 }
