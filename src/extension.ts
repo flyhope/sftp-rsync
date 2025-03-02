@@ -1,28 +1,24 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
-import * as fs from 'fs';
 import * as path from 'path';
 
 // 获取Sftp的配置
-function getSftpConfig() {
+async function getSftpConfig(): Promise<config | null> { // 修改: 将函数改为 async
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage("No workspace is open.");
-        return null;
+        return Promise.resolve(null);
     }
 
     const sftpConfigPath = path.join(workspaceFolders[0].uri.fsPath, '.vscode', 'sftp.json');
 
-    if (!fs.existsSync(sftpConfigPath)) {
-        vscode.window.showErrorMessage("sftp.json not found in .vscode folder.");
-        return null;
-    }
-
     try {
-        const configContent = fs.readFileSync(sftpConfigPath, 'utf-8');
+        await vscode.workspace.fs.stat(vscode.Uri.file(sftpConfigPath)); // 修改: 使用 await
+        const data = await vscode.workspace.fs.readFile(vscode.Uri.file(sftpConfigPath)); // 修改: 使用 await
+        const configContent = data.toString(); // 修改: 删除: data.toString('utf-8');
         return JSON.parse(configContent);
-    } catch (error) {
-        vscode.window.showErrorMessage("Failed to read sftp.json: " + String(error));
+    } catch (error) { // 修改: 使用 try/catch
+        vscode.window.showErrorMessage("sftp.json not found in .vscode folder.");
         return null;
     }
 }
@@ -69,15 +65,20 @@ function syncProjectWithRsync(localPath: string, c: config) {
 }
 
 // 插件插活操作
-export function activate(context: vscode.ExtensionContext) {
-  let disposable = vscode.commands.registerCommand('extension.syncProject',  (): void => {
-    const config = getSftpConfig();
-    const localPath = vscode.workspace.rootPath || "";
-    syncProjectWithRsync(localPath, config);
-  });
+export async function activate(context: vscode.ExtensionContext) { // 修改: async
+    let disposable = vscode.commands.registerCommand('extension.syncProject', async (): Promise<void> => { // 修改: async
+        const config = await getSftpConfig(); // 修改: await
+        const localPath = vscode.workspace.rootPath || "";
+        if (config) { // 修改: 添加检查
+            syncProjectWithRsync(localPath, config);
+        } else {
+            vscode.window.showErrorMessage("Failed to load SFTP configuration.");
+        }
+    });
 
-  context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable);
 }
 
 // 插件反激活
 export function deactivate() {}
+
