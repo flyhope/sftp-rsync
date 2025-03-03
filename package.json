@@ -2,7 +2,7 @@
   "name": "sftp-rsync-fast",
   "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "flyhope",
   "repository": {
     "type": "git",

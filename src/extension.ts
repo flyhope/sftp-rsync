@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
 import * as path from 'path';
 
 // 获取Sftp的配置
@@ -32,36 +31,43 @@ type config = {
   privateKeyPath: string|undefined;
 }
 
-// 使用rsync执行命令
+// 使用vscode任务系统执行rsync命令
 function syncProjectWithRsync(localPath: string, c: config) {
-  // 拼接SSH命令
-  let sshCommand = `ssh -o StrictHostKeyChecking=no`;
-  if (c.privateKeyPath) {
-    sshCommand += ` -i ${c.privateKeyPath}`;
-  }
-  if (c.port) {
-    sshCommand += ` -p ${c.port}`;
-  }
-
-  // 如果是windows，拼接rsync命令时localPath转为cygwin格式的路径
-  if (process.platform === 'win32') {
-    localPath = localPath.replace(/\\/g, '/');
-    localPath = localPath.replace(/ /g, '\\ ');
-    localPath = localPath.replace(/^([a-zA-Z]):\//, '/cygdrive/$1/');
-  }
-
-  // 拼接rsync命令
-  const command = `rsync -av --delete -e "${sshCommand}" ${localPath} ${c.username}@${c.host}:${c.remotePath}`;
-  console.log(command);
-  
-  // 执行命令
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      vscode.window.showErrorMessage(`Error during sync: ${stderr}`);
-    } else {
-      vscode.window.showInformationMessage(`Sync complete: ${stdout}`);
+    // 拼接SSH命令
+    let sshCommand = `ssh -o StrictHostKeyChecking=no`;
+    if (c.privateKeyPath) {
+        sshCommand += ` -i ${c.privateKeyPath}`;
     }
-  });
+    if (c.port) {
+        sshCommand += ` -p ${c.port}`;
+    }
+
+    // 如果是windows，拼接rsync命令时localPath转为cygwin格式的路径
+    if (process.platform === 'win32') {
+        localPath = localPath.replace(/\\/g, '/');
+        localPath = localPath.replace(/ /g, '\\ ');
+        localPath = localPath.replace(/^([a-zA-Z]):\//, '/cygdrive/$1/');
+    }
+
+    // 拼接rsync命令
+    const command = `rsync -av --delete -e "${sshCommand}" ${localPath} ${c.username}@${c.host}:${c.remotePath}`;
+    console.log(command);
+
+    // 拆分命令为shell和shellArgs
+    const shell = 'rsync';
+    const shellArgs = ['-av', '--delete', '-e', sshCommand, localPath, `${c.username}@${c.host}:${c.remotePath}`];
+
+    // 创建vscode任务
+    const task = new vscode.Task(
+        { type: 'shell' },
+        vscode.TaskScope.Workspace,
+        'syncProject',
+        'extension',
+        new vscode.ShellExecution(shell, shellArgs)
+    );
+
+    // 执行任务
+    vscode.tasks.executeTask(task);
 }
 
 // 插件插活操作
@@ -81,4 +87,8 @@ export async function activate(context: vscode.ExtensionContext) { // 修改: as
 
 // 插件反激活
 export function deactivate() {}
+
+
+
+
 
