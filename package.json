@@ -2,14 +2,14 @@
   "name": "sftp-rsync-fast",
   "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "flyhope",
   "repository": {
     "type": "git",
     "url": "https://github.com/flyhope/sftp-rsync.git"
   },
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -44,5 +44,5 @@
     "@vscode/test-electron": "^2.4.1"
   },
   "browser": "out/extension.js",
-  "extensionKind": ["workspace", "ui"]
+  "extensionKind": ["ui"]
 }
