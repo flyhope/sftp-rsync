@@ -1,22 +1,22 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 // 获取Sftp的配置
-async function getSftpConfig(): Promise<config | null> { // 修改: 将函数改为 async
+async function getSftpConfig(): Promise<config | null> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage("No workspace is open.");
         return Promise.resolve(null);
     }
 
-    const sftpConfigPath = path.join(workspaceFolders[0].uri.fsPath, '.vscode', 'sftp.json');
+    // 修改: 移除 path.join，改为字符串拼接
+    const sftpConfigPath = `${workspaceFolders[0].uri.fsPath}/.vscode/sftp.json`;
 
     try {
-        await vscode.workspace.fs.stat(vscode.Uri.file(sftpConfigPath)); // 修改: 使用 await
-        const data = await vscode.workspace.fs.readFile(vscode.Uri.file(sftpConfigPath)); // 修改: 使用 await
-        const configContent = data.toString(); // 修改: 删除: data.toString('utf-8');
+        await vscode.workspace.fs.stat(vscode.Uri.file(sftpConfigPath));
+        const data = await vscode.workspace.fs.readFile(vscode.Uri.file(sftpConfigPath));
+        const configContent = data.toString();
         return JSON.parse(configContent);
-    } catch (error) { // 修改: 使用 try/catch
+    } catch (error) {
         vscode.window.showErrorMessage("sftp.json not found in .vscode folder.");
         return null;
     }
@@ -50,12 +50,12 @@ function syncProjectWithRsync(localPath: string, c: config) {
     }
 
     // 拼接rsync命令
-    const command = `rsync -av --delete -e "${sshCommand}" ${localPath} ${c.username}@${c.host}:${c.remotePath}`;
+    const command = `rsync -av -e "${sshCommand}" ${localPath}/ ${c.username}@${c.host}:${c.remotePath}`;
     console.log(command);
 
     // 拆分命令为shell和shellArgs
     const shell = 'rsync';
-    const shellArgs = ['-av', '--delete', '-e', sshCommand, localPath, `${c.username}@${c.host}:${c.remotePath}`];
+    const shellArgs = ['-av', '-e', sshCommand, `${localPath}/`, `${c.username}@${c.host}:${c.remotePath}`];
 
     // 创建vscode任务
     const task = new vscode.Task(
@@ -71,11 +71,11 @@ function syncProjectWithRsync(localPath: string, c: config) {
 }
 
 // 插件插活操作
-export async function activate(context: vscode.ExtensionContext) { // 修改: async
-    let disposable = vscode.commands.registerCommand('extension.syncProject', async (): Promise<void> => { // 修改: async
-        const config = await getSftpConfig(); // 修改: await
+export async function activate(context: vscode.ExtensionContext) {
+    let disposable = vscode.commands.registerCommand('extension.syncProject', async (): Promise<void> => {
+        const config = await getSftpConfig();
         const localPath = vscode.workspace.rootPath || "";
-        if (config) { // 修改: 添加检查
+        if (config) {
             syncProjectWithRsync(localPath, config);
         } else {
             vscode.window.showErrorMessage("Failed to load SFTP configuration.");
