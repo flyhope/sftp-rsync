@@ -1,21 +1,27 @@
 import * as vscode from 'vscode';
 
 // 获取Sftp的配置
-async function getSftpConfig(): Promise<config | null> {
+async function getSftpConfig(): Promise<config | config[] | null> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage("No workspace is open.");
         return Promise.resolve(null);
     }
 
-    // 修改: 移除 path.join，改为字符串拼接
     const sftpConfigPath = `${workspaceFolders[0].uri.fsPath}/.vscode/sftp.json`;
 
     try {
         await vscode.workspace.fs.stat(vscode.Uri.file(sftpConfigPath));
         const data = await vscode.workspace.fs.readFile(vscode.Uri.file(sftpConfigPath));
         const configContent = data.toString();
-        return JSON.parse(configContent);
+        const config = JSON.parse(configContent);
+
+        // 检查是否为数组或单个对象
+        if (Array.isArray(config)) {
+            return config; // 返回数组格式
+        } else {
+            return [config]; // 转换为数组格式统一处理
+        }
     } catch (error) {
         vscode.window.showErrorMessage("sftp.json not found in .vscode folder.");
         return null;
@@ -24,11 +30,12 @@ async function getSftpConfig(): Promise<config | null> {
 
 // 定义sftp config类型 
 type config = {
-  host: string|undefined;
-  port: number|undefined;
-  username: string|undefined;
-  remotePath: string|undefined;
-  privateKeyPath: string|undefined;
+  name: string | undefined; // 添加 name 属性
+  host: string | undefined;
+  port: number | undefined;
+  username: string | undefined;
+  remotePath: string | undefined;
+  privateKeyPath: string | undefined;
 }
 
 // 使用vscode任务系统执行rsync命令
@@ -73,10 +80,30 @@ function syncProjectWithRsync(localPath: string, c: config) {
 // 插件插活操作
 export async function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('extension.syncProject', async (): Promise<void> => {
-        const config = await getSftpConfig();
+        const configs = await getSftpConfig();
         const localPath = vscode.workspace.rootPath || "";
-        if (config) {
-            syncProjectWithRsync(localPath, config);
+
+        if (!configs || (Array.isArray(configs) && configs.length === 0)) {
+            vscode.window.showErrorMessage("Failed to load SFTP configuration.");
+            return;
+        }
+
+        // 如果是数组格式，提供选项让用户选择
+        let selectedConfig: config | undefined;
+        if (Array.isArray(configs) && configs.length > 1) {
+            const names = (configs as config[]).map((c: config) => c.name || "Unnamed");
+            const selectedName = await vscode.window.showQuickPick(names, { placeHolder: "Select a configuration to use" });
+            if (!selectedName) {
+                vscode.window.showErrorMessage("No configuration selected.");
+                return;
+            }
+            selectedConfig = (configs as config[]).find((c: config) => c.name === selectedName);
+        } else {
+            selectedConfig = Array.isArray(configs) ? configs[0] : configs;
+        }
+
+        if (selectedConfig) {
+            syncProjectWithRsync(localPath, selectedConfig);
         } else {
             vscode.window.showErrorMessage("Failed to load SFTP configuration.");
         }
