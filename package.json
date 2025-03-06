@@ -2,7 +2,7 @@
   "name": "sftp-rsync-fast",
   "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publisher": "flyhope",
   "icon": "icon.png",
   "repository": {
@@ -15,6 +15,16 @@
   "categories": [
     "Other"
   ],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+        "supported": true
+    },
+    "fileSystem": {
+        "read": true,
+        "write": true
+      }
+  },
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
@@ -23,7 +33,16 @@
         "command": "extension.syncProject",
         "title": "sftp-rsync: Rsync upload project"
       }
-    ]
+    ],
+    "configuration": {
+        "properties": {
+            "sftp-rsync-fast.allowFileAccess": {
+                "type": "boolean",
+                "default": true,
+                "description": "Allow the extension to access files on disk."
+            }
+        }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
