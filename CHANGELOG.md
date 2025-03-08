@@ -1,9 +1,9 @@
 # Change Log
 
-All notable changes to the "sftp-rsync" extension will be documented in this file.
+## 0.0.13 - 2025-03-08
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+* Improve readme
+* configure use vscode-remote-fs
+* support code-server
+* command change to `rsync upload project`
 
-## [Unreleased]
-
-- Initial release

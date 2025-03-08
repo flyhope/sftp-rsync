@@ -2,7 +2,7 @@
   "name": "sftp-rsync-fast",
   "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "publisher": "flyhope",
   "icon": "icon.png",
   "repository": {
@@ -12,15 +12,13 @@
   "engines": {
     "vscode": "^1.80.0"
   },
-  "categories": [
-    "Other"
-  ],
+  "categories": [    "Other"  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "extension.syncProject",
-        "title": "sftp-rsync: Rsync upload project"
+        "title": "sftp-rsync: rsync upload project"
       }
     ],
     "configuration": {
