@@ -69,7 +69,8 @@ async function getSftpConfig(): Promise<config | config[] | null> {
                     port: remoteConfig.port,
                     username: remoteConfig.username,
                     privateKeyPath: remoteConfig.privateKeyPath,
-                    remotePath: sftpConfig.remotePath
+                    remotePath: sftpConfig.remotePath,
+                    ignore: sftpConfig.ignore || [] // 新增 ignore 字段
                 };
                 configs.push(mergedConfig);
             }
@@ -100,6 +101,7 @@ type config = {
   username: string | undefined;
   remotePath: string | undefined;
   privateKeyPath: string | undefined;
+  ignore: string[]; // 新增 ignore 字段
 }
 
 // 新增一个模块级别的终端实例
@@ -119,8 +121,12 @@ function syncProjectWithRsync(localPath: string, c: config) {
     localPath = localPath.replace(/\\/g, '/');
     localPath = localPath.replace(/^([a-zA-Z]):\//, '/cygdrive/$1/');
 
-    // 拼接rsync命令
-    const command = `rsync -av -e "${sshCommand}" '${localPath}/' ${c.username}@${c.host}:${c.remotePath}`;
+    // 拼接rsync命令，添加忽略选项
+    let command = `rsync -av -e "${sshCommand}" '${localPath}/' ${c.username}@${c.host}:${c.remotePath}`;
+    if (c.ignore && c.ignore.length > 0) {
+        const ignoreOptions = c.ignore.map((ignoreItem: string) => `--exclude '${ignoreItem}'`).join(' ');
+        command += ` ${ignoreOptions}`;
+    }
 
     // 如果终端不存在或已关闭，则创建一个新的终端
     if (!terminal || terminal.exitStatus) {
