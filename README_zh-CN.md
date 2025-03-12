@@ -1,12 +1,12 @@
 # Sftp-Rsync
 
+<img src="./icon.png" align="right" alt="LOGO" style="width: 150px; margin-right: 20px;"> 
+
 使用 rsync 将本地文件同步到 SFTP(SSH) 服务器。
 
-## 特色
-
-* 使用 rsync，速度快！非常快！相当的快！
-* 复用 sftp.json 项目配置文件，易于使用！
-* 支持 code-server、Linux、Mac、Windows (Cygwin)！
+* 🚀 使用 rsync，速度快！非常快！相当的快！
+* 🎈 复用 sftp.json 项目配置文件，易于使用！
+* 💫 支持 code-server、Linux、Mac、Windows (Cygwin)！
 
 ## 安装
 

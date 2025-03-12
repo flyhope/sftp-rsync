@@ -1,12 +1,15 @@
 # Sftp-Rsync
 
+
+<img src="./icon.png" align="right" alt="LOGO" style="width: 150px; margin-right: 20px;"> 
+
+[简体中文说明](https://github.com/flyhope/sftp-rsync/blob/main/README_zh-CN.md)
+
 use rsync to sync files from local to sftp server.
 
-## feature
-
-* use rsync, fast! fast! fast !
-* use sftp.json project config file, easy to use!
-* support windows cygwin ssh & rsync!
+* 🚀 use rsync, fast! fast! fast !
+* 🎈 use sftp.json project config file, easy to use!
+* 💫 support windows cygwin ssh & rsync!
 
 ## Installation
 
