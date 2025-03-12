@@ -107,6 +107,9 @@ type config = {
 // 新增一个模块级别的终端实例
 let terminal: vscode.Terminal | null = null;
 
+// 新增全局常量定义终端名称
+const TERMINAL_NAME = 'SFTP-RSync';
+
 function syncProjectWithRsync(localPath: string, c: config) {
     // 拼接SSH命令
     let sshCommand = `ssh -o StrictHostKeyChecking=no`;
@@ -128,9 +131,15 @@ function syncProjectWithRsync(localPath: string, c: config) {
         command += ` ${ignoreOptions}`;
     }
 
-    // 如果终端不存在或已关闭，则创建一个新的终端
+    // 如果终端不存在或已关闭，则查找同名终端或创建一个新的终端
     if (!terminal || terminal.exitStatus) {
-        terminal = vscode.window.createTerminal('SFTP RSync');
+        // 查找同名终端
+        const existingTerminal = vscode.window.terminals.find(t => t.name === TERMINAL_NAME);
+        if (existingTerminal) {
+            terminal = existingTerminal;
+        } else {
+            terminal = vscode.window.createTerminal(TERMINAL_NAME);
+        }
     }
 
     // 发送命令到终端并显示终端
