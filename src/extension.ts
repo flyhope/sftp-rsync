@@ -125,7 +125,8 @@ function syncProjectWithRsync(localPath: string, c: config) {
     localPath = localPath.replace(/^([a-zA-Z]):\//, '/cygdrive/$1/');
 
     // 拼接rsync命令，添加忽略选项
-    let command = `rsync -av -e "${sshCommand}" '${localPath}/' ${c.username}@${c.host}:${c.remotePath}`;
+    const rsyncArgs = vscode.workspace.getConfiguration().get<string>('sftp-rsync-fast.rsyncArgs', '-av');
+    let command = `rsync ${rsyncArgs} -e "${sshCommand}" '${localPath}/' ${c.username}@${c.host}:${c.remotePath}`;
     if (c.ignore && c.ignore.length > 0) {
         const ignoreOptions = c.ignore.map((ignoreItem: string) => `--exclude '${ignoreItem}'`).join(' ');
         command += ` ${ignoreOptions}`;
