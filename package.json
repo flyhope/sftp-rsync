@@ -2,7 +2,7 @@
   "name": "sftp-rsync-fast",
   "displayName": "sftp-rsync-fast",
   "description": "",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "publisher": "flyhope",
   "icon": "icon.png",
   "repository": {
@@ -12,7 +12,9 @@
   "engines": {
     "vscode": "^1.80.0"
   },
-  "categories": [    "Other"  ],
+  "categories": [
+    "Other"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -22,13 +24,18 @@
       }
     ],
     "configuration": {
-        "properties": {
-            "sftp-rsync-fast.allowFileAccess": {
-                "type": "boolean",
-                "default": true,
-                "description": "Allow the extension to access files on disk."
-            }
+      "properties": {
+        "sftp-rsync-fast.allowFileAccess": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow the extension to access files on disk."
+        },
+        "sftp-rsync-fast.rsyncArgs": {
+          "type": "string",
+          "default": "-av",
+          "description": "Default rsync arguments used when syncing."
         }
+      }
     }
   },
   "scripts": {
